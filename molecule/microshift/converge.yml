@@ -1,11 +1,10 @@
 ---
-- name: "execute deploy multi-node devstack"
+- name: "execute deploy microshift on rhcos"
   import_playbook: ../../ansible/deploy_microshift.yaml
   vars:
-    devstack_branch: master
-    controller_services_extra:
-      # Shared services
-      tls-proxy: false
-    compute_services_extra:
-      # Shared services
-      tls-proxy: false
+    user_name: microshift
+    install_olm: false
+    manage_firewall: false
+    microshift_install_type: ostree
+    crio_install_type: ostree
+    crio_log_level: debug

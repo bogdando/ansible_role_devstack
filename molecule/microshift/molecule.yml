@@ -19,11 +19,11 @@ driver:
   parallel: true
   # vagrant box to use by default
   # Defaults to 'generic/alpine310'
-  default_box: 'generic/centos9s'
+  default_box: 'jansendotsh/fedora-coreos'
 platforms:
   - name: microshfit
-    memory: 8192
-    cpus: 8
+    memory: 4096
+    cpus: 2
     provider_options:
       cpu_mode: 'host-passthrough'
       nested: true
