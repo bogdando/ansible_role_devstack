@@ -32,8 +32,8 @@
         - ("is already requested" not in _install_result.stderr)
     - name: reboot the machine
       when:
-        - ("systemctl reboot" in item.stdout)
         - crio_install_type == 'ostree'
+        - ("systemctl reboot" in item.stdout)
       loop: "{{ _install_result.results }}"
       reboot:
     - name: configure crio logging
@@ -124,6 +124,7 @@
         remote_src: yes
     - name: setup kubconfig for {{ microshift_user }} user
       when: microshift_install_type != 'ostree'
+      become: true
       shell: |
         mkdir -p /home/{{ microshift_user }}/.kube
         chown {{ microshift_user }}:{{ microshift_user }} /home/{{ microshift_user }}/.kube

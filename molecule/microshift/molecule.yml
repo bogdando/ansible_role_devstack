@@ -19,7 +19,7 @@ driver:
   parallel: true
   # vagrant box to use by default
   # Defaults to 'generic/alpine310'
-  default_box: 'bogdando/fedora-iot'
+  default_box: 'generic/centos9s'
 platforms:
   - name: microshfit
     memory: 4096

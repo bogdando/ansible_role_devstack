@@ -41,7 +41,9 @@
   register: _ssh_key_result
 
 - name: generate {{ user_name }} user ssh key "{{ssh_key_filename}}"
-  delegate_to: 127.0.0.1
+  delegate_to: localhost
+  vars:
+    ansible_connection: local
   when:
     - manage_ssh_key|bool
     - not _ssh_key_result.stat.exists
