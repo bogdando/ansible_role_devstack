@@ -1,40 +1,51 @@
 ---
-# tasks file for ensure_stack_user
-- name: create stack user as root
-  become: yes
+# tasks file for ensure_{{ user_name }}_user
+- name: create {{ user_name }} user as root
+  become: true
   tags: users
   block:
-    - name: stack group
+    - name: "{{ user_name }} group"
       group:
-        name: stack
+        name: "{{ user_name }}"
         state: present
 
-    - name: stack user
+    - name: "{{ user_name }} user"
       user:
-        name: stack
-        password: "{{ stack_user_password | password_hash('sha512','A512') }}"
-        shell: /bin/bash
-        group: stack
+        name: "{{ user_name }}"
+        password: "{{ user_password | password_hash('sha512','A512') }}"
+        shell: "{{ user_shell }}"
+        system: "{{ user_shell == '/sbin/nologin' }}"
+        group: "{{ user_name }}"
         state: present
 
-    - name: grant stack user passwordless sudo privileges
+    - name: grant {{ user_name }} user passwordless sudo privileges
+      when: user_sudo|bool
       copy:
-        dest: /etc/sudoers.d/50_stack_user
+        dest: /etc/sudoers.d/50_{{ user_name }}_user
         content: |
-          stack ALL=(ALL) NOPASSWD:ALL
+          {{ user_name }} ALL=(ALL) NOPASSWD:ALL
 
-- name: create /opt/stack
-  become: yes
+- name: create /opt/{{ user_name }}
+  become: true
   ansible.builtin.file:
-    path: '/opt/stack'
+    path: '/opt/{{ user_name }}'
     state: directory
     mode: '0777'
-    owner: stack
-    group: stack
+    owner: "{{ user_name }}"
+    group: "{{ user_name }}"
 
-- name: generate stack user ssh key "{{ssh_key_filename}}"
+- name: check for the key existance
+  when: manage_ssh_key|bool
+  stat:
+    path: "~/.ssh/{{ssh_key_filename}}"
+  register: _ssh_key_result
+
+- name: generate {{ user_name }} user ssh key "{{ssh_key_filename}}"
   delegate_to: 127.0.0.1
-  run_once: yes
+  when:
+    - manage_ssh_key|bool
+    - not _ssh_key_result.stat.exists
+  run_once: true
   tags: ssh
   openssh_keypair:
     path: "~/.ssh/{{ssh_key_filename}}"
@@ -43,16 +54,18 @@
     mode: '0600'
     force: no
 
-- name: setup stack user ssh keys
-  become_user: stack
-  become: yes
+- name: setup {{ user_name }} user ssh keys
+  when: manage_ssh_key|bool
+  become_user: "{{ user_name }}"
+  become: true
   tags: ssh
   block:
-    - name: create .ssh dir
+    - name: create {{ user_name }} .ssh dir
       file:
         path: '~/.ssh'
         state: directory
     - name: copy private key
+      no_log: true
       copy:
         src: "~/.ssh/{{ssh_key_filename}}"
         dest: "~/.ssh/id_ed25519"
@@ -63,41 +76,48 @@
         dest: "~/.ssh/id_ed25519.pub"
     - name: Set authorized key
       ansible.posix.authorized_key:
-        user: stack
+        user: "{{ user_name }}"
         state: present
         key: "{{ lookup('file', lookup('env','HOME') + '/.ssh/{{ssh_key_filename}}.pub') }}"
 
 - name: setup root user ssh keys
-  become: yes
+  when: manage_ssh_key|bool
+  become: true
   tags: ssh
   block:
-    - name: create .ssh dir
+    - name: create root user .ssh dir
       file:
-        path: '~/.ssh'
+        path: '/root/.ssh'
         state: directory
     - name: copy private key
+      no_log: true
       copy:
-        src: "~/.ssh/{{ssh_key_filename}}"
-        dest: "~/.ssh/id_ed25519"
+        src: "/root/.ssh/{{ssh_key_filename}}"
+        dest: "/root/.ssh/id_ed25519"
         mode: '0600'
     - name: copy public key
       copy:
-        src: "~/.ssh/{{ssh_key_filename}}.pub"
-        dest: "~/.ssh/id_ed25519.pub"
+        src: "/root/.ssh/{{ssh_key_filename}}.pub"
+        dest: "/root/.ssh/id_ed25519.pub"
     - name: Set authorized key
       ansible.posix.authorized_key:
         user: root
         state: present
-        key: "{{ lookup('file', lookup('env','HOME') + '/.ssh/{{ssh_key_filename}}.pub') }}"
+        key: "{{ lookup('file', '/root/.ssh/' + ssh_key_filename + '.pub') }}"
 
 - name: setup ansible user ssh keys
+  when:
+    - manage_ssh_key|bool
+    - ansible_user != user_name
+  become: "{{ ansible_user != user_name }}"
   tags: ssh
   block:
-    - name: create .ssh dir
+    - name: create {{ ansible_user }} .ssh dir
       file:
         path: '~/.ssh'
         state: directory
     - name: copy private key
+      no_log: true
       copy:
         src: "~/.ssh/{{ssh_key_filename}}"
         dest: "~/.ssh/id_ed25519"

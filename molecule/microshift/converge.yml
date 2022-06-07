@@ -2,9 +2,10 @@
 - name: "execute deploy microshift on rhcos"
   import_playbook: ../../ansible/deploy_microshift.yaml
   vars:
-    user_name: microshift
+    microshift_user: vagrant
     install_olm: false
     manage_firewall: false
-    microshift_install_type: ostree
-    crio_install_type: ostree
+    manage_ssh_key: false
+    microshift_install_type: podman #ostree
+    crio_install_type: rpm # ostree
     crio_log_level: debug

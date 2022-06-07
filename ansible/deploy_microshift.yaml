@@ -3,7 +3,6 @@
   hosts: openshift
   tags: openshift
   roles:
-    - ensure-podman
-    - ensure_stack_user
+    - tripleo_podman # tripleo_ansible
     - ensure_microshift
 

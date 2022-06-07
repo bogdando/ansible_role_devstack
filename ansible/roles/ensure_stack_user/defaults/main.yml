@@ -1,4 +1,8 @@
 ---
-# defaults file for ensure_stack_user
-stack_user_password: "tester"
-ssh_key_filename: id_ed25519_stack
+# defaults file for ensured user
+user_name: stack
+user_password: "tester"
+user_sudo: true
+user_shell: /bind/bash
+manage_ssh_key: true
+ssh_key_filename: id_ed25519_{{ user_name }}
