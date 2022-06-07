@@ -20,7 +20,8 @@ crio_log_level: info
 crio_packages:
   - cri-o
   - cri-tools
-  - oci-systemd-hook
+  - conntrack
+  #- oci-systemd-hook
 install_olm: true
 repo_dir: /opt/{{ microshift_user }}
 operator_sdk_url: https://github.com/operator-framework/operator-sdk
