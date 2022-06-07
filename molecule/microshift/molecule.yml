@@ -19,7 +19,7 @@ driver:
   parallel: true
   # vagrant box to use by default
   # Defaults to 'generic/alpine310'
-  default_box: 'jansendotsh/fedora-coreos'
+  default_box: 'bogdando/fedora-iot'
 platforms:
   - name: microshfit
     memory: 4096
