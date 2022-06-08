@@ -9,7 +9,7 @@ microshift_volumes:
   - "hpvolumes:/var/hpvolumes:z,rw,rshared"
   - "microshift-data:/var/lib/microshift:rw,rshared"
   - "kubelet:/var/lib/kubelet:rw,rshared"
-  - "/var/run/crio/crio.sock:/var/run/crio/crio.sock:rw,rshared"
+  - "/var/run/crio/crio.sock:/var/run/crio/crio.sock:rw,rshared,z"
   - "logs:/var/logs"
   # this might be needed for the kublet or cni config.
   - "/etc:/etc"
@@ -21,7 +21,6 @@ crio_packages:
   - cri-o
   - cri-tools
   - conntrack
-  #- oci-systemd-hook
 install_olm: true
 repo_dir: /opt/{{ microshift_user }}
 operator_sdk_url: https://github.com/operator-framework/operator-sdk
