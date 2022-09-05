@@ -10,8 +10,8 @@ driver:
   default_box: 'generic/centos9s'
 platforms:
   - name: crc
-    memory: 20480
-    cpus: 8
+    memory: 16384
+    cpus: 4
     provider_options:
       cpu_mode: 'host-passthrough'
       nested: true
@@ -19,8 +19,8 @@ platforms:
     groups:
       - openshift
   - name: compute
-    memory: 8192
-    cpus: 8
+    memory: 2048
+    cpus: 2
     provider_options:
       cpu_mode: 'host-passthrough'
       nested: true
